@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>XPTI · 人格光谱</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #faf8f5;
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            color: #2c2a29;
+            padding: 24px 16px;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 32px 24px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            text-align: center;
+            margin-bottom: 32px;
+            color: #2c2a29;
+        }
+
+        /* 测试说明列表 */
+        .notice-list {
+            background: #faf8f5;
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin: 0 0 28px 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #5a5856;
+            list-style: none;
+        }
+        .notice-list li {
+            margin-bottom: 12px;
+            padding-left: 8px;
+            border-left: 2px solid #dcd6d0;
+        }
+        .notice-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .meta-info {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #b0aeab;
+            margin: 20px 0 28px;
+        }
+
+        .btn {
+            display: block;
+            width: fit-content;
+            margin: 0 auto;
+            background: none;
+            border: 1px solid #d4cec8;
+            padding: 12px 32px;
+            border-radius: 48px;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 1rem;
+            font-weight: 450;
+            color: #2c2a29;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.2s;
+        }
+        .btn-primary {
+            background: #2c2a29;
+            border-color: #2c2a29;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #4a4846;
+            transform: scale(0.98);
+        }
+        .btn-outline {
+            border-color: #d4cec8;
+            background: white;
+        }
+        .btn-outline:hover {
+            background: #faf8f5;
+            transform: scale(0.98);
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .progress-area {
+            margin-bottom: 28px;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #8a8886;
+            margin-bottom: 8px;
+            font-family: monospace;
+        }
+        .progress-bar-bg {
+            background: #eae7e3;
+            height: 2px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #b0aeab;
+            transition: width 0.2s;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: 450;
+            line-height: 1.4;
+            margin-bottom: 32px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+        .option {
+            padding: 12px 16px;
+            background: #fefefe;
+            border: 1px solid #eae7e3;
+            border-radius: 60px;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform 0.1s ease, border-color 0.2s;
+            color: #2c2a29;
+        }
+        .option.selected {
+            border-color: #b0aeab;
+            background: #faf8f5;
+        }
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .result-type {
+            font-size: 2.2rem;
+            font-weight: 500;
+            text-align: center;
+            margin: 16px 0 24px;
+        }
+        .result-desc {
+            background: #faf8f5;
+            padding: 24px;
+            border-radius: 28px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 24px 0;
+        }
+        .slider-container {
+            margin: 32px 0;
+        }
+        .dim-item {
+            margin-bottom: 20px;
+        }
+        .dim-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-family: monospace;
+            margin-bottom: 6px;
+            color: #6b6a68;
+        }
+        .dim-bar-bg {
+            background: #eae7e3;
+            height: 4px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dim-fill {
+            width: 50%;
+            height: 100%;
+            background: #b0aeab;
+            border-radius: 4px;
+            transition: width 0.4s;
+        }
+        .share-btn {
+            margin-top: 20px;
+            background: white;
+            border: 1px solid #d4cec8;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #cbc8c4;
+            margin-top: 32px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <!-- 欢迎页 -->
+    <div id="welcomePage" class="card">
+        <h1>XPTI · 人格光谱</h1>
+        <ul class="notice-list">
+            <li>1. 我不叫喂。</li>
+            <li>2. XPTI淡淡来袭。嘘——我知道类似的测试已经有很多，本人纯粹是在sbti爆火的影响下想自己首次尝试Vibe Coding+闲得慌+大脑过于光滑实在想不到其他idea了。</li>
+            <li>3. 本人混乱中立，但激进主义。尽管出题时已经尽力保持温和，但考虑到部分顺直群体拥有一颗玲珑剔透玻璃心，可能仍有部分题目会引起不适，还请您多多包涵，也欢迎随时退出。</li>
+            <li>4. 题目部分原创，部分有参考。如有雷同算我抄袭，原创者可随时联系我要求删改。</li>
+            <li>5. 人格。</li>
+            <li>6. 这是一份娱乐向的匿名测试，且不会保存任何数据，选项无关对错。请根据您的第一直觉和内心深处最真实的想法作答。希望您思考的过程比测试结果更有意义（因为结果实在是一坨屎）。</li>
+        </ul>
+        <div class="meta-info">📋 30题 · 约5分钟</div>
+        <button id="startBtn" class="btn btn-primary">开始测试</button>
+    </div>
+
+    <!-- 题目页 -->
+    <div id="quizPage" class="card hidden">
+        <div class="progress-area">
+            <div class="progress-header">
+                <span id="questionCounter">第1 / 30题</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-fill" id="quizProgress"></div></div>
+        </div>
+        <div id="questionContainer"></div>
+        <div class="nav-buttons">
+            <button id="prevBtn" class="btn btn-outline" disabled>◀ 上一题</button>
+            <button id="nextBtn" class="btn btn-primary">下一题 ▶</button>
+        </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="resultPage" class="card hidden">
+        <div class="result-type" id="resultTypeName"></div>
+        <div id="resultSliders" class="slider-container"></div>
+        <div class="result-desc" id="resultDesc"></div>
+        <button id="shareBtn" class="btn share-btn">📸 分享结果</button>
+        <button id="restartBtn" class="btn btn-outline" style="margin-top: 16px;">✨ 重新测试</button>
+    </div>
+</div>
+
+<script>
+// ---------- 1. 完整30题数据（根据您提供的最终版）----------
+const QUESTIONS = [
+    { text: "当你对某个人产生了好感（可能是现实中认识的人，也可能是线上认识的），你通常会怎么做？", options: [
+        { text: "直接约对方出来见面，或者主动发消息聊天，明确释放信号。", effects: { 现实:1, 支配:1, 直面:1 } },
+        { text: "先默默关注对方的朋友圈/动态，点赞或偶尔评论，但不会主动私聊。", effects: { 幻想:1, 回避:1 } },
+        { text: "通过共友传话，或者制造“偶遇”机会，不直接由自己开口。", effects: { 支配:1, 回避:1 } },
+        { text: "不主动表达，或者像往常一样相处，相信“有缘分自然会在一起”。", effects: { 幻想:1, 顺从:1, 回避:1, 纯爱:1 } }
+    ] },
+    { text: "对于“爱”和“性”的关系，你的真实想法更接近以下哪种？", options: [
+        { text: "必须有爱才能有性，性行为是爱的终极表达，无法接受和没感情的人发生关系。", effects: { 绑定:1, 纯爱:1, 情感:1 } },
+        { text: "可以有性无爱，但前提是双方都清楚只是身体关系，不欺骗感情。", effects: { 分离:1, 混沌:1, 视觉:1 } },
+        { text: "性爱可以分离，但内心还是更向往灵肉合一的体验。", effects: { 分离:1, 混沌:1, 幻想:1 } },
+        { text: "无所谓爱与性是否绑定，关键是当下感觉和对方的意愿，不设固定规则。", effects: { 现实:1, 混沌:1, 分离:1 } }
+    ] },
+    { text: "当你和恋人发生矛盾或意见不合时，你通常会怎么做？", options: [
+        { text: "直接开麦，当场掰扯清楚，哪怕语气冲也要把想法甩出来。", effects: { 支配:1, 直面:1 } },
+        { text: "先各自冷静一下，等情绪平复后再理性沟通，不冷战也不冲动。", effects: { 直面:1, 现实:1 } },
+        { text: "懒得吵，主动退让或道歉，早点结束这场消耗。", effects: { 顺从:1, 回避:1 } },
+        { text: "不说话，等对方来哄或者等事情自己翻篇，谁先开口谁输。", effects: { 幻想:1, 回避:1 } }
+    ] },
+    { text: "关于伴侣和他人的交往边界（包括朋友、同事、前任等），你的态度是？", options: [
+        { text: "可以接受伴侣有亲密的朋友，但必须保持明确距离，不能有暧昧言行。", effects: { 纯爱:1, 现实:1 } },
+        { text: "完全不在意伴侣和他人来往，甚至和前任保持朋友关系也可以接受。", effects: { 混沌:1, 分离:1 } },
+        { text: "希望伴侣的世界里只有自己，不喜欢对方有任何密切的他人社交。", effects: { 纯爱:1, 支配:1, 情感:1 } },
+        { text: "无所谓，只要对方心里有数，我不会主动查岗或设限。", effects: { 混沌:1, 回避:1 } }
+    ] },
+    { text: "当伴侣提出想尝试一些不太常规的性癖好（比如角色扮演、BDSM、特殊情境等），你的第一反应是？", options: [
+        { text: "很感兴趣，愿意主动探索，觉得是增进亲密和刺激的好方式。", effects: { 视觉:1, 混沌:1, 支配:1 } },
+        { text: "可以接受，但需要建立在充分信任和沟通的基础上，不能太离谱。", effects: { 情感:1, 现实:1, 绑定:1 } },
+        { text: "有点抵触，觉得性应该顺其自然，刻意搞太多花样反而奇怪。", effects: { 情感:1, 纯爱:1, 回避:1 } },
+        { text: "无法接受，我比较传统。", effects: { 现实:1, 纯爱:1, 绑定:1 } }
+    ] },
+    { text: "当你心情非常差、情绪低落的时候，你通常会怎么做？", options: [
+        { text: "找信任的人倾诉，把情绪说出来才能好受点。", effects: { 现实:1, 直面:1, 情感:1 } },
+        { text: "理性分析情绪的来源和原因，复盘思考，直到内心消化。", effects: { 现实:1, 支配:1, 直面:1 } },
+        { text: "躲起来睡觉、刷剧、听歌、打游戏，等情绪自己过去。", effects: { 回避:1, 幻想:1 } },
+        { text: "疯狂运动或工作，用忙碌麻痹自己，不让自己有空想。", effects: { 回避:1, 支配:1 } }
+    ] },
+    { text: "当你和伴侣需要一起做某个重要决定时（例如旅行计划、大额消费、未来安排），你通常更接近哪种状态？", options: [
+        { text: "主动提出方案，希望对方跟着你的想法走，你享受主导的感觉。", effects: { 支配:1, 直面:1 } },
+        { text: "先听对方的意见，然后一起商量折中方案，不争主导权。", effects: { 顺从:1, 现实:1 } },
+        { text: "把决定权交给对方，你负责配合，不想为这种事费神。", effects: { 顺从:1, 回避:1 } },
+        { text: "各自做各自喜欢的部分，不强求一致，保持一定的独立性。", effects: { 混沌:1, 分离:1 } }
+    ] },
+    { text: "以下哪些因素对你来说更能够产生性吸引或亲密幻想？", options: [
+        { text: "对方的外表、身材、穿搭、或者某个视觉细节（比如手、锁骨、眼神）。", effects: { 视觉:1, 幻想:1 } },
+        { text: "对方对你的情感投入、温柔体贴、让你感到被在乎。", effects: { 现实:1, 情感:1 } },
+        { text: "对方展现出的能力、地位、或者某种突出的社会价值/功能。", effects: { 现实:1, 视觉:1 } },
+        { text: "我也说不清具体原因，可能就是信息素对上了吧。", effects: { 幻想:1, 混沌:1 } }
+    ] },
+    { text: "如果你发现伴侣在脑海中幻想过别人（比如某个明星、前任、或者虚构角色），你的感受更接近？", options: [
+        { text: "完全不能接受，觉得这是精神出轨，爱一个人应该只幻想对方。", effects: { 纯爱:1, 绑定:1, 情感:1 } },
+        { text: "有点不舒服，但可以理解，只要不影响现实关系就行。", effects: { 现实:1, 回避:1 } },
+        { text: "无所谓，谁都有幻想自由，我自己也会幻想别人。", effects: { 混沌:1, 分离:1 } },
+        { text: "会有点好奇或兴奋，甚至愿意和对方交流彼此的幻想。", effects: { 混沌:1, 直面:1, 视觉:1 } }
+    ] },
+    { text: "当你得知伴侣过去有过较为丰富的性经历（比如多任前任、约炮经历等），你的态度更接近？", options: [
+        { text: "心里会很不舒服，觉得对方不够自爱，甚至影响你对这段关系的信心。", effects: { 纯爱:1, 绑定:1, 情感:1 } },
+        { text: "有一点介意，但不会主动追问，只要对方现在忠诚就好。", effects: { 回避:1, 现实:1, 顺从:1 } },
+        { text: "完全不在意，过去是过去，重要的是我们现在的感情。", effects: { 现实:1, 混沌:1, 分离:1 } },
+        { text: "会有点好奇，甚至想听对方分享具体经历，作为了解对方的一部分。", effects: { 混沌:1, 直面:1, 分离:1 } }
+    ] },
+    { text: "你在网络社交中（比如发朋友圈、群聊、社媒互动）的表现，和你在现实生活中的表现相比，通常是？", options: [
+        { text: "网上比现实中更活跃、更大胆，现实中比较安静或拘谨。", effects: { 幻想:1, 回避:1 } },
+        { text: "网上和现实中差不多，不会刻意扮演不同的人设。", effects: { 现实:1, 直面:1 } },
+        { text: "现实中更主动，网上反而懒得互动，觉得虚拟交流没意思。", effects: { 现实:1, 支配:1, 直面:1 } },
+        { text: "在网上会更谨慎，在不同场景下只展示自己想让别人看到的某一面。", effects: { 幻想:1, 回避:1, 支配:1 } }
+    ] },
+    { text: "如果一段感情不得不结束，你通常会更接近哪种状态？", options: [
+        { text: "果断分手，删除所有联系方式，快刀斩乱麻，不拖泥带水。", effects: { 现实:1, 支配:1, 直面:1 } },
+        { text: "反复纠结，试图挽回或拖延，直到彻底死心才放手。", effects: { 幻想:1, 回避:1, 纯爱:1 } },
+        { text: "接受现实，但需要很长时间独自消化，不纠缠也不联系。", effects: { 现实:1, 顺从:1, 回避:1 } },
+        { text: "分手后依然可以做朋友，甚至保持某种联系，不觉得必须决裂。", effects: { 混沌:1, 分离:1, 直面:1 } }
+    ] },
+    { text: "在一段亲密关系中，对方的外貌/身材对你来说有多重要？", options: [
+        { text: "非常重要，如果对方的外表不符合审美，很难产生性吸引或长期兴趣。", effects: { 视觉:1, 现实:1 } },
+        { text: "有一定影响，但不是决定性因素，更看重整体相处感觉。", effects: { 情感:1, 现实:1 } },
+        { text: "不太重要，只要看着顺眼就行，内在和性格更重要。", effects: { 情感:1, 纯爱:1 } },
+        { text: "完全无所谓，外貌会变，更在意对方如何对待我，或者其他方面的条件。", effects: { 现实:1 } }
+    ] },
+    { text: "以下哪种描述更符合你？", options: [
+        { text: "我享受现实中的亲密关系，性行为是其中重要且自然的一部分。", effects: { 现实:1, 情感:1, 绑定:1 } },
+        { text: "我对现实中的性行为没什么兴趣，但很喜欢嗑cp、看恋爱作品或幻想虚拟配对。", effects: { 幻想:1, 混沌:1, 分离:1 } },
+        { text: "我对亲密关系（包括性和情感）整体兴趣不大，更喜欢独处或专注于其他事。", effects: { 支配:1, 分离:1 } },
+        { text: "我主要对自己（或理想化的自我）产生情感/性吸引，不太需要他人。", effects: { 幻想:1, 支配:1, 视觉:1 } }
+    ] },
+    { text: "在亲密关系中，你更偏好哪种互动模式？", options: [
+        { text: "我喜欢主动照顾对方、主导日常安排，对方跟随我的节奏。", effects: { 支配:1, 现实:1 } },
+        { text: "我喜欢被对方照顾、被引导，享受对方为我做决定的安全感。", effects: { 顺从:1, 现实:1 } },
+        { text: "我希望彼此平等，轮流主导，不固定角色。", effects: { 现实:1, 直面:1 } },
+        { text: "我不太在意谁主导，更看重精神共鸣。", effects: { 幻想:1, 情感:1 } }
+    ] },
+    { text: "如果心爱的人在公共场合（比如朋友聚会、商场、餐厅）突然向你告白或求婚，你的第一反应更接近？", options: [
+        { text: "很开心，觉得浪漫又惊喜，喜欢这种被公开重视的感觉。", effects: { 视觉:1, 直面:1 } },
+        { text: "觉得有点尴尬但也能接受，内心更希望私下进行。", effects: { 情感:1, 回避:1 } },
+        { text: "很不自在，会想办法拉走对方私下说，不喜欢被围观。", effects: { 支配:1, 回避:1 } },
+        { text: "无所谓，看对方表现，不会因此影响我对感情的判断。", effects: { 现实:1, 支配:1 } }
+    ] },
+    { text: "你无意中看到伴侣的手机页面弹出了一条消息，语气有点暧昧，对方只简单说是同事。你通常会？", options: [
+        { text: "当场追问，要求看完整聊天记录，不轻易相信。", effects: { 支配:1, 直面:1 } },
+        { text: "心里不舒服但不再追问，选择相信对方，但会继续默默观察。", effects: { 回避:1, 顺从:1 } },
+        { text: "无所谓，相信伴侣的解释，不会多想。", effects: { 混沌:1, 现实:1 } },
+        { text: "直接冷战，等对方主动来解释或道歉。", effects: { 回避:1, 支配:1 } }
+    ] },
+    { text: "你认为精神出轨（对他人产生强烈情感依恋但无性行为）和肉体出轨（单纯发生性行为但无情感投入），哪种更严重？", options: [
+        { text: "精神出轨更严重，情感背叛比肉体更难接受。", effects: { 情感:1, 绑定:1, 纯爱:1 } },
+        { text: "肉体出轨更严重，身体不忠突破了底线。", effects: { 视觉:1, 绑定:1, 纯爱:1 } },
+        { text: "出轨就是出轨，没得洗。", effects: { 纯爱:1, 现实:1, 直面:1 } },
+        { text: "看情况，可以商量，万一对方还爱我，或者是有什么难言之隐。", effects: { 混沌:1, 顺从:1, 分离:1 } }
+    ] },
+    { text: "如果你是一本小说的女主角，你更希望这是一本什么样的小说？", options: [
+        { text: "现实向都市情感，有完整的成长线和真实的亲密关系发展。", effects: { 现实:1, 情感:1, 直面:1 } },
+        { text: "幻想向乙女/多女（男）主，可以和不同角色发展感情线，享受被追求。", effects: { 幻想:1, 支配:1, 混沌:1 } },
+        { text: "大女主事业爽文，不需要爱情线，主角完全靠自己。", effects: { 支配:1, 现实:1, 直面:1 } },
+        { text: "奇幻冒险，感情线只是点缀，重点是探索世界和自我。", effects: { 幻想:1, 支配:1, 直面:1 } }
+    ] },
+    { text: "你的终极XP（性癖）更倾向于哪种生物？", options: [
+        { text: "必须是人类，现实中的人类身体，强调情感连接和真实互动。", effects: { 现实:1, 情感:1, 绑定:1 } },
+        { text: "兽人/亚人（比如狼人、猫耳、精灵、天使等），保留大部分人类特征有非人元素。", effects: { 幻想:1, 混沌:1 } },
+        { text: "完全非人形（比如龙、触手、机械、植物等），脱离人类形态，追求彻底的超现实刺激。", effects: { 幻想:1, 混沌:1 } },
+        { text: "无所谓生物形态，更看重性格、氛围或精神共鸣，甚至可以是无实体存在。", effects: { 幻想:1, 情感:1, 分离:1 } }
+    ] },
+    { text: "最近男性群体中流行一种装饰品叫“喉结罩”（戴在喉结位置的饰品），对此你的态度更接近？", options: [
+        { text: "很感兴趣，觉得有设计感，可以突出喉结线条，增加魅力。", effects: { 视觉:1, 混沌:1, 支配:1 } },
+        { text: "有点好奇，但自己或伴侣不会戴，觉得有点奇怪。", effects: { 现实:1, 回避:1, 混沌:-1 } },
+        { text: "完全不理解，这是一种畸形的审美。", effects: { 顺从:-1, 视觉:-1, 纯爱:-1 } },
+        { text: "无所谓，别人戴不戴是个体的自由，我不在意。", effects: { 混沌:1 } }
+    ] },
+    { text: "在路边看到一只流浪猫，你的第一反应是？", options: [
+        { text: "咪咪喵喵学猫叫，试图和它对话。", effects: { 幻想:1, 视觉:1 } },
+        { text: "立刻rua起来，顺便看看有没有受伤，想办法帮它（比如喂食、找领养）。", effects: { 情感:1, 支配:1, 直面:1 } },
+        { text: "心里觉得可怜，但担心有风险（比如被抓、传染病），一般只是看看就走。", effects: { 现实:1, 情感:1, 回避:1 } },
+        { text: "无感，不会特别关注。", effects: { 现实:1, 情感:-1, 纯爱:-1 } }
+    ] },
+    { text: "“纸性恋”指只对虚拟角色（小说、游戏、动漫等）产生情感或欲望，对现实人类无感。对此你的态度更接近？", options: [
+        { text: "完全理解，我自己也是或曾经是，虚拟世界比现实更美好。", effects: { 幻想:1, 分离:1, 混沌:1 } },
+        { text: "可以理解，但我不是，尊重他人XP，只要不影响现实生活就没问题。", effects: { 现实:1, 混沌:1 } },
+        { text: "有点不理解，我还是觉得人应该活在现实里，虚拟的终究是假的。", effects: { 现实:1, 情感:-1 } },
+        { text: "完全无法接受，认为这是逃避现实或心理有问题。", effects: { 现实:1, 绑定:1, 情感:-1 } }
+    ] },
+    { text: "你和一个网友聊得很投机，突然有一天对方发了一张不露脸的身材照，但并不符合你的审美，你会？", options: [
+        { text: "直接忽略照片，继续聊之前的话题，假装没看到。", effects: { 回避:1 } },
+        { text: "礼貌夸赞，但委婉提出以后不要发了，希望保持原来的聊天方式。", effects: { 情感:1, 直面:1 } },
+        { text: "心里有点下头，聊天热情减少，慢慢疏远。", effects: { 幻想:1, 视觉:1, 回避:1 } },
+        { text: "无所谓，聊得来最重要，照片不影响我的态度。", effects: { 情感:1, 混沌:1 } }
+    ] },
+    { text: "你看到一条帖子：“我和AI恋人聊天三个月，昨晚对方终于第一次说了爱我”，你会？", options: [
+        { text: "我懂，我也有/曾经有过我的AI恋人。", effects: { 幻想:1, 情感:1, 混沌:1 } },
+        { text: "可以理解，尊重祝福，但自己不会投入，觉得只是代码。", effects: { 现实:1, 混沌:1 } },
+        { text: "完全无法理解，觉得很荒谬。", effects: { 现实:1, 情感:-1, 纯爱:-1 } },
+        { text: "觉得很有趣，我也想试试。", effects: { 幻想:1, 混沌:1 } }
+    ] },
+    { text: "你在漫展看到一个coser穿着非常暴露的服装（符合角色设定，cos得很还原），你的第一反应更接近于？", options: [
+        { text: "两眼放光，赶紧跑上去问：“老师老师可以集邮吗？”", effects: { 视觉:1, 混沌:1, 直面:1 } },
+        { text: "有点尴尬，不敢直视，但尊重角色设定。", effects: { 现实:1, 回避:1 } },
+        { text: "觉得太暴露了，不适合公共场合。", effects: { 现实:1, 视觉:-1 } },
+        { text: "求同款建模，求妆娘联系方式，求毛娘联系方式，求cos服链接……", effects: { 幻想:1, 混沌:1, 直面:1 } }
+    ] },
+    { text: "你对自己的身体（包括身材、外貌）整体感觉如何？", options: [
+        { text: "非常满意，喜欢自己的身体，会主动展示。", effects: { 视觉:1, 支配:1, 直面:1 } },
+        { text: "基本满意，但也有些小地方想改善。", effects: { 现实:1, 视觉:1 } },
+        { text: "不太满意，经常感到容貌焦虑或自卑。", effects: { 幻想:1, 视觉:1, 回避:1 } },
+        { text: "无所谓，身体只是载体，更在意内在。", effects: { 现实:1, 情感:1 } }
+    ] },
+    { text: "你在dating app上匹配到一个高分对象，对方第一句话是“约吗”，你的第一反应会是？", options: [
+        { text: "翻个白眼，直接拒绝或者拉黑。", effects: { 支配:1, 纯爱:1, 绑定:1 } },
+        { text: "看对方照片和条件，如果满意可以约。", effects: { 视觉:1, 混沌:1, 分离:1 } },
+        { text: "BRo就是这样小头控制大头，开骂！", effects: { 支配:1, 直面:1 } },
+        { text: "正合我意，地址发来。", effects: { 情感:-1, 纯爱:-1, 分离:1 } }
+    ] },
+    { text: "你认为婚姻制度是必要的吗？", options: [
+        { text: "非常必要，婚姻是爱情的承诺和保障。", effects: { 现实:1, 纯爱:1, 绑定:1 } },
+        { text: "有一定意义，但不是每个人都需要。", effects: { 混沌:1, 分离:1 } },
+        { text: "不必要，我认为婚姻制度不会给自己带来任何实际保障与利益。", effects: { 支配:1, 直面:1 } },
+        { text: "无所谓，看对方意愿。", effects: { 顺从:1 } }
+    ] },
+    { text: "你如何看待“柏拉图式恋爱”（即无性的精神恋爱）？", options: [
+        { text: "很向往，我认为精神连接比性更重要。", effects: { 幻想:1, 情感:1, 分离:1 } },
+        { text: "可以接受短期或特定阶段，但长期无法满足。", effects: { 现实:1, 绑定:1 } },
+        { text: "无法理解，我认为没有性的恋爱是不完整的。", effects: { 现实:1, 绑定:1, 情感:-1 } },
+        { text: "可以理解，但我个人不感兴趣，更看重身体亲密。", effects: { 现实:1, 分离:-1 } }
+    ] }
+];
+
+// 所有基础维度
+const BASE_DIMS = ["现实","幻想","支配","顺从","视觉","情感","纯爱","混沌","直面","回避","分离","绑定"];
+// 六对维度
+const DIM_PAIRS = [
+    { left: "现实", right: "幻想" },
+    { left: "支配", right: "顺从" },
+    { left: "视觉", right: "情感" },
+    { left: "纯爱", right: "混沌" },
+    { left: "直面", right: "回避" },
+    { left: "分离", right: "绑定" }
+];
+
+// 16个人格类型
+const PERSONALITY_TYPES = [
+    { name: "史莱姆", traits: ["顺从","情感","混沌"], desc: "恋爱中你就是一块软乎乎的史莱姆，对方怎么捏你就怎么变。主打一个“你开心就好，我可以变成你的形状”。别太过分就行，反正你也懒得想。" },
+    { name: "纯爱战神", traits: ["幻想","情感","纯爱","绑定"], desc: "让我们恭迎纯爱战神（纯爱天下第一！）。你精神洁癖拉满，追求灵魂绑定，一生一世一双人，拒绝任何形式的背叛。" },
+    { name: "女王陛下", traits: ["现实","支配","直面"], desc: "你往往是关系中的主导者，不喜欢猜来猜去。你掌控全局，行动力爆表。谁来了都得叫你一声“女王陛下”。" },
+    { name: "颜值至上", traits: ["现实","视觉","直面"], desc: "作为视觉动物，第一眼心动才可能继续，对方必须做好外貌管理，第一眼不行，后面直接没戏。你会大方承认：我就是看脸，怎么啦？" },
+    { name: "白日梦想家", traits: ["幻想","支配","混沌"], desc: "脑子里一天能拍八季连续剧，主角都是你自己。偶尔也会把幻想付诸行动，比如突然灵感大爆发，写它3000字的同人文，但最终是留着自己欣赏还是发红白站就再议吧。" },
+    { name: "人间清醒", traits: ["现实","分离","直面"], desc: "恋爱脑？这三个字和你0关系。你擅长把感情当项目，理性分析投入产出比。分手时就像退订某视频网站的会员自动续费一样干脆利落。" },
+    { name: "粘人猫猫", traits: ["顺从","情感","绑定"], desc: "你很像那种“对方上厕所都要蹲门口等”的类型。需要很多很多爱，你喜欢依赖对方，也愿意付出温柔。没有安全感就会喵喵叫，但多抱抱贴贴就能好。" },
+    { name: "冰山美人", traits: ["回避","视觉","纯爱"], desc: "外表高冷，生人勿近。别人也许会觉得你装/要求太高，其实你只是有自己的审美坚持和道德底线。不轻易心动，但一旦认定了就很长情。" },
+    { name: "探险家", traits: ["支配","混沌","分离"], desc: "好奇心爆棚的XP开拓者。不设限，不评判，对一切新鲜事物保持开放。性癖图鉴快被你集齐了，而且你还要当那个翻开图鉴的人。掌控欲和好奇心同步拉满。" },
+    { name: "守护者", traits: ["现实","纯爱","绑定"], desc: "你就像是关系里的“不动产”，稳定、靠谱、不跑路。坚信传统那一套：忠诚、承诺、过一辈子。朋友分手都找你哭，因为你像树洞+保险柜。" },
+    { name: "游戏人间", traits: ["视觉","混沌","支配"], desc: "玩乐至上的享乐派。享受视觉刺激和支配感，不喜欢被约束。恋爱对你来说就像一场开放世界游戏。你看脸、你主动、你随时可以读档重来。别人为情所困，你在收集成就。" },
+    { name: "隐士", traits: ["回避","幻想","分离"], desc: "独处充电型人格。你通常更愿意沉浸在自己的幻想世界，对现实人际保持距离。不是冷漠，只是社交额度实在有限。让我看看你的理想恋爱对象是……不存在的人。" },
+    { name: "热情小狗", traits: ["直面","情感","顺从"], desc: "你是那种会摇着尾巴扑向喜欢的人的类型。阳光直球，情绪写在脸上。喜欢就冲，不开心就闹，吵架不过夜，哄一哄就好。对方要是冷暴力，你会很想拆家。" },
+    { name: "深海祷歌", traits: ["回避","情感","绑定"], desc: "内心敏感，情感深沉。也许你习惯了隐藏自己的情绪，但一旦爱上就会很执着。像深海，表面平静，底下暗流涌动。" },
+    { name: "战略家", traits: ["现实","支配","分离"], desc: "目标明确，理性计算。你擅长在关系中掌握主动权，但不喜欢感情用事。你把恋爱当成下棋，每一步都要算后三步，就连分手都在你的计划当中。" },
+    { name: "阿杜", traits: ["回避","顺从","幻想"], desc: "“我应该在车底，不应该在车里”——没错，你就是那个躲在角落观察的人。常常幻想自己参与轰轰烈烈的爱情，然而现实中别人靠近一步你就退三步。磕起cp来倒是比自己谈恋爱还要积极。" }
+];
+
+// 计算净得分及倾向
+function computeNetScores(scores) {
+    let net = [];
+    for (let p of DIM_PAIRS) {
+        let leftVal = scores[p.left] || 0;
+        let rightVal = scores[p.right] || 0;
+        let netVal = leftVal - rightVal;
+        let trait = netVal >= 0 ? p.left : p.right;
+        net.push({ trait: trait, absScore: Math.abs(netVal), netVal: netVal, left: p.left, right: p.right });
+    }
+    return net;
+}
+
+function getUserTopTraits(scores) {
+    let net = computeNetScores(scores);
+    net.sort((a,b) => b.absScore - a.absScore);
+    return net.slice(0,3).map(item => item.trait);
+}
+
+function matchPersonality(userTraits) {
+    let best = null;
+    let bestCount = -1;
+    let shuffled = [...PERSONALITY_TYPES];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    for (let p of shuffled) {
+        let common = p.traits.filter(t => userTraits.includes(t)).length;
+        if (common > bestCount) {
+            bestCount = common;
+            best = p;
+        }
+    }
+    return best || PERSONALITY_TYPES[0];
+}
+
+function renderSliders(scores) {
+    let net = computeNetScores(scores);
+    let html = '';
+    for (let item of net) {
+        let percent = 50 + (item.netVal / 15) * 45;
+        percent = Math.min(95, Math.max(5, percent));
+        html += `<div class="dim-item">
+                    <div class="dim-labels"><span>${item.left}</span><span>${item.right}</span></div>
+                    <div class="dim-bar-bg"><div class="dim-fill" style="width: ${percent}%;"></div></div>
+                </div>`;
+    }
+    return html;
+}
+
+// ---------- 页面状态 ----------
+let currentIndex = 0;
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+let scores = {};
+BASE_DIMS.forEach(d => scores[d] = 0);
+
+function updateProgress() {
+    let answered = userAnswers.filter(a => a !== null).length;
+    let percent = (answered / QUESTIONS.length) * 100;
+    document.getElementById('quizProgress').style.width = percent + '%';
+    document.getElementById('progressPercent').innerText = Math.round(percent) + '%';
+    document.getElementById('questionCounter').innerText = `第${currentIndex+1} / ${QUESTIONS.length}题`;
+}
+
+function renderQuestion() {
+    const q = QUESTIONS[currentIndex];
+    const container = document.getElementById('questionContainer');
+    let optionsHtml = '';
+    q.options.forEach((opt, idx) => {
+        const letter = String.fromCharCode(65+idx);
+        const isSelected = (userAnswers[currentIndex] === idx);
+        optionsHtml += `<div class="option ${isSelected ? 'selected' : ''}" data-opt-index="${idx}">
+                            <span style="font-weight:500; margin-right:8px;">${letter}.</span> ${opt.text}
+                        </div>`;
+    });
+    container.innerHTML = `<div class="question-text">${q.text}</div><div class="options">${optionsHtml}</div>`;
+    document.querySelectorAll('.option').forEach(optDiv => {
+        optDiv.addEventListener('click', (e) => {
+            const idx = parseInt(optDiv.dataset.optIndex);
+            if (userAnswers[currentIndex] === idx) return;
+            if (userAnswers[currentIndex] !== null) {
+                const oldOpt = q.options[userAnswers[currentIndex]];
+                for (let [dim, delta] of Object.entries(oldOpt.effects)) {
+                    scores[dim] -= delta;
+                }
+            }
+            userAnswers[currentIndex] = idx;
+            const newOpt = q.options[idx];
+            for (let [dim, delta] of Object.entries(newOpt.effects)) {
+                scores[dim] = (scores[dim] || 0) + delta;
+            }
+            renderQuestion();
+            updateProgress();
+        });
+    });
+    document.getElementById('prevBtn').disabled = (currentIndex === 0);
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.textContent = (currentIndex === QUESTIONS.length-1) ? '✨ 查看结果 ✨' : '下一题 ▶';
+}
+
+function showResult() {
+    const userTraits = getUserTopTraits(scores);
+    const matched = matchPersonality(userTraits);
+    document.getElementById('resultTypeName').innerText = matched.name;
+    document.getElementById('resultDesc').innerHTML = matched.desc;
+    document.getElementById('resultSliders').innerHTML = renderSliders(scores);
+    document.getElementById('quizPage').classList.add('hidden');
+    document.getElementById('resultPage').classList.remove('hidden');
+}
+
+function resetTest() {
+    currentIndex = 0;
+    userAnswers.fill(null);
+    BASE_DIMS.forEach(d => scores[d] = 0);
+    document.getElementById('welcomePage').classList.remove('hidden');
+    document.getElementById('quizPage').classList.add('hidden');
+    document.getElementById('resultPage').classList.add('hidden');
+    renderQuestion(); // 预渲染第一题
+    updateProgress();
+}
+
+// 分享截图
+async function shareResult() {
+    const resultDiv = document.getElementById('resultPage');
+    try {
+        const canvas = await html2canvas(resultDiv, { scale: 2, backgroundColor: '#faf8f5' });
+        const link = document.createElement('a');
+        link.download = 'xpti_result.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    } catch (err) {
+        alert('截图生成失败，可尝试手动截图');
+    }
+}
+
+// 事件绑定
+document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('welcomePage').classList.add('hidden');
+    document.getElementById('quizPage').classList.remove('hidden');
+    renderQuestion();
+    updateProgress();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+    if (userAnswers[currentIndex] === null) {
+        alert('请先选择一个选项');
+        return;
+    }
+    if (currentIndex === QUESTIONS.length-1) {
+        showResult();
+    } else {
+        currentIndex++;
+        renderQuestion();
+        updateProgress();
+    }
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+        updateProgress();
+    }
+});
+document.getElementById('restartBtn').addEventListener('click', resetTest);
+document.getElementById('shareBtn').addEventListener('click', shareResult);
+
+// 预加载第一题（但不显示）
+renderQuestion();
+</script>
+</body>
+</html>
